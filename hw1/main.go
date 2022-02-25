@@ -1,32 +1,85 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 )
 
 const taps uint64 = 0x800000000000000D
 
+func printUsage() {
+	fmt.Println("Usage: ./lsfr keygen <keyfile>")
+	fmt.Println("       ./lsfr mix <keyfile> <infile> <outfile>")
+	os.Exit(1)
+}
+
 func main() {
-	// The key is the inital state of the tap
-	var key uint64 = 12412341
+	// ./lsfr keygen <keyfile>
+	// ./lsfr mix <keyfile> <infile> <outfile>
+	if len(os.Args) < 2 {
+		printUsage()
+	}
 
-	// I found a maximal period set of taps from this list (maybe tap choice could be part of the magic?)
-	// https://users.ece.cmu.edu/~koopman/lfsr/64.txt
-	lsfr1 := NewLFSR(key, taps)
+	switch os.Args[1] {
+	case "keygen":
+		if len(os.Args) != 3 {
+			fmt.Println("Usage: ./lsfr keygen <keyfile>")
+			os.Exit(1)
+		}
 
-	// encrypt message.txt to cipher.txt then decrypt cipher.txt to plain.txt
-	msg, _ := os.Open("message.txt")
-	cipher, _ := os.Create("cipher.txt")
-	lsfr1.Mix(msg, cipher)
+		// Open key file
+		f, err := os.Create(os.Args[2])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 
-	cipher.Close()
-	msg.Close()
+		// Generate key
+		key := rand.Uint64()
 
-	lsfr2 := NewLFSR(key, taps)
+		// Write key to file
+		fmt.Fprintf(f, "%d\n", key)
+	case "mix":
+		if len(os.Args) != 5 {
+			fmt.Println("Usage: ./lsfr mix <keyfile> <infile> <outfile>")
+			os.Exit(1)
+		}
 
-	// decrypt cipher.txt to plain.txt
-	cipher, _ = os.Open("cipher.txt")
-	plain, _ := os.Create("plain.txt")
+		// Open the key file
+		f, err := os.Open(os.Args[2])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer f.Close()
 
-	lsfr2.Mix(cipher, plain)
+		// Read the key
+		var key uint64
+		fmt.Fscanf(f, "%d\n", &key)
+
+		// Open the input file
+		r, err := os.Open(os.Args[3])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer r.Close()
+
+		// Open the output file
+		w, err := os.Create(os.Args[4])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer w.Close()
+
+		// Create the LFSR
+		lsfr := NewLFSR(key, taps)
+
+		// Mix the files
+		lsfr.Mix(r, w)
+	default:
+		printUsage()
+	}
 }
