@@ -16,16 +16,14 @@ program in a separate compressed file by email.
 
 If you don't have the go compiler you can find download instructions at https://go.dev/doc/install. 
 
-Start by running `make`. This will compile and symlink the binaries, `keygen`, `encrypt`, `decrypt`.
+Running `make` is the easiest way to compile and test the program. It will encrypt and decrypt the file and run diff.
 
-To generate key pairs run the command of length bits `./keygen <bits>`, this will create two files `private.key` and `public.key`.
+`make test` will run unit tests I wrote to verify the correctness of the program.
 
-I haven't written much of a cli for this, everything is done using redirects of stdin and stdout. To encrypt a file with a public key you can run the following command `./encrypt public.key < plaintext.txt > cipher.txt`.
+## Usage
 
-To decrypt a file with a private key you can run the following command `./decrypt private.key < cipher.txt > plaintext.txt`.
-
-## Some technical stuff
-
-The key file format is a text file containing the numbers of the modulus and the exponent separated by a newline.
-
-A generated cipher text is just the numeric result after encryption encoded in ascii. (it's just a number) This means that's encrypting and decrypting are not the same operation.
+```
+./rsa keygen <key size> <public_key> <private_key>
+./rsa encrypt <public_key> <plaintext> <ciphertext>
+./rsa decrypt <private_key> <ciphertext> <plaintext>
+```

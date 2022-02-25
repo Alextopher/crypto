@@ -1,0 +1,8 @@
+You are reading the plaintext of our second assignment in cryptography.
+For this assignment, implement your own RSA cryptosystem for text files.
+Then, re-encrypt this plaintext with your own RSA keys and then submit the
+encrypted text file via email along with the RSA secret keys (which are the
+RSA modulus and RSA secret decryption exponent used). You may implement RSA
+in any programming language of your choice. Submit the source for your RSA
+program in a separate compressed file by email.
+

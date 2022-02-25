@@ -1,2 +1,4 @@
 *.key
-*.txt
+cipher.txt
+plaintext.txt
+rsa
