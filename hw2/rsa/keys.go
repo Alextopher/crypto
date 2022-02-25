@@ -6,7 +6,7 @@ import (
 
 type PrivateKey struct {
 	// Pointer to the public key which holds the modulus
-	public *PublicKey
+	Public *PublicKey
 
 	// The private exponent
 	d *big.Int
