@@ -1,0 +1,124 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"math/big"
+	"os"
+	"regexp"
+)
+
+var re *regexp.Regexp
+
+func init() {
+	re = regexp.MustCompile(" ")
+}
+
+func main() {
+	// Read keys file
+	ec, _ := readKeys()
+
+	// Read input file
+	input, err := os.Open("a4.cipher")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Read input by line
+	scanner := bufio.NewScanner(input)
+
+	// Decrypt each line
+	for scanner.Scan() {
+		// Split line into 4 numbers
+		numbers := re.Split(scanner.Text(), -1)
+
+		// Convert numbers to big.Ints
+		var bigNumbers []*big.Int
+		for _, number := range numbers {
+			bigNumbers = append(bigNumbers, fatalStringToBigInt(number))
+		}
+
+		// Take two points
+		C := &Point{bigNumbers[0], bigNumbers[1]}
+		H := &Point{bigNumbers[2], bigNumbers[3]}
+
+		// Fullmask = N * H
+		fullmask := ec.ScalarMult(H, ec.N)
+
+		// M = C - F
+		M := ec.Sub(C, fullmask)
+
+		// Convert M.x ascii
+		fmt.Print(string(M.X.Bytes()))
+	}
+}
+
+func fatalStringToBigInt(s string) *big.Int {
+	i, ok := new(big.Int).SetString(s, 10)
+	if !ok {
+		log.Fatal("Could not convert string to big.Int")
+	}
+	return i
+}
+
+func readKeys() (*EllipticCurve, *Point) {
+	// Open file
+	file, err := os.Open("a4.allkeys")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// string to read the file into
+	allKeys, err := ioutil.ReadFile("a4.allkeys")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Read these values with scanf
+	// ````
+	// prime = 174095479503494089102058402505908788526019855967814733438804231465527914236968890087228697246515264224322503055783534528662224009081611092996674253475185752520899827021681967540300771276892724730319418183769434750966095824878115428477581852963792200892639286552224381277542684670030837107722916532530306445627
+	// A = 143483245795638707551267552184379962067040033512960921992150010173202247040354852774943436232391421717838891658118196641056354280985065856972231601779092668463669354166526067156034281782417731181420705449858208706324785090710591561984275182447109292993821938120298787404593160265850171472866647284875420029812
+	// B = 139307549401954230856768283399350471603133409148221184511104737799033389622043155712164066064801957631438958040705862962836609320600922142669396786995577401917097003968447218062821008292841659880184187667554522752078266695877216687580215538954550068658717726516354475264312232158552444602287729985372396023136
+	// Generator = [130447584713533089669485336499797623711718217646936619123075344574242625806578200727428590677881516241536770719234403972703741916958934661079197960759179218091473258130355882694572756809917629513273179869558257494919289390293653029584582045451031663753161303870419548724709216634960661058624230596671750596755,32821889565262848566990262994158154358613342758848117165049452505083787784423217623477427538438200634243879122800333318183736594173577047326767004066294824410810217901788436161538924913172849257216860956419971325757351102619605356957939840722018179623157539666714997292059028102329658217489670547868771372492]
+	// Point = [74884380633085228732474398446921943991669332308532852030130605789717214261250433917853465804043590520103353981368781367472504171334152438354526427693594007421500892888249108732508735521772781756143060916018049576729583209510448313445766836217664624894490946058859573723544619725567021287881821438938754695896,4652941727865479407835146809932615539990654737868522612906089526446328908856435010548845665992142959452158137152771918198742277156557656938193792754726237919423435396449178527654046549955076808195812509712040378995755080798679605170006280581573476645276003333933786311028523032862161729264168059991087251784]
+	// Multiplier = 3
+	// ````
+
+	var prime, a, b, multiplier, generatorX, generatorY, pointX, pointY *big.Int
+	var _prime, _a, _b, _multiplier, _generatorX, _generatorY, _pointX, _pointY string
+
+	// Parse the whole file with regex
+	re := regexp.MustCompile(`prime = (\d+)\nA = (\d+)\nB = (\d+)\nGenerator = \[(\d+),(\d+)\]\nPoint = \[(\d+),(\d+)\]\nMultiplier = (\d+)`)
+	for _, match := range re.FindAllStringSubmatch(string(allKeys), -1) {
+		// Parse the values
+		_prime = match[1]
+		_a = match[2]
+		_b = match[3]
+		_generatorX = match[4]
+		_generatorY = match[5]
+		_pointX = match[6]
+		_pointY = match[7]
+		_multiplier = match[8]
+	}
+
+	// Convert the strings to big.Ints
+	prime = fatalStringToBigInt(_prime)
+	a = fatalStringToBigInt(_a)
+	b = fatalStringToBigInt(_b)
+	generatorX = fatalStringToBigInt(_generatorX)
+	generatorY = fatalStringToBigInt(_generatorY)
+	pointX = fatalStringToBigInt(_pointX)
+	pointY = fatalStringToBigInt(_pointY)
+	multiplier = fatalStringToBigInt(_multiplier)
+
+	// Create the curve
+	curve := NewEllipticCurve(a, b, prime, multiplier, &Point{generatorX, generatorY})
+
+	// Create the point
+	point := &Point{pointX, pointY}
+
+	return curve, point
+}
