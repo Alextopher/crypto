@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 )
@@ -100,7 +99,6 @@ func TestFullCipher(t *testing.T) {
 
 	// Ensure that the first state is the same as the input
 	if aes.state != stringToState("00112233445566778899aabbccddeeff") {
-		fmt.Println(aes)
 		t.Errorf("Initilize AES start state failed")
 	}
 
@@ -269,7 +267,6 @@ func TestFullInverseCipher(t *testing.T) {
 
 	// Ensure that the first state is the same as the input
 	if aes.state != stringToState("69c4e0d86a7b0430d8cdb78070b4c55a") {
-		fmt.Println(aes)
 		t.Errorf("Initilize AES start state failed")
 	}
 

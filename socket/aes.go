@@ -5,7 +5,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 )
 
 // Copied from the NIST standard
@@ -50,7 +49,7 @@ var invsbox = [256]byte{
 
 type AES struct {
 	key [16]byte
-	// state is index by [row][column]
+	// state is indexed by [row][column]
 	state     [4][4]byte
 	roundKeys [11][16]byte
 }
@@ -66,19 +65,6 @@ func NewAES(key []byte) (*AES, error) {
 	a.roundKeys = expandKey(a.key)
 
 	return a, nil
-}
-
-func (aes *AES) String() string {
-	str := fmt.Sprintf("AES{key: %x, ,\nstate:\n", aes.key)
-	for r := 0; r < 4; r++ {
-		for c := 0; c < 4; c++ {
-			str += fmt.Sprintf("%02x ", aes.state[r][c])
-		}
-		str += "\n"
-	}
-	str += "}"
-
-	return str
 }
 
 func (aes *AES) BlockEncypt(input [16]byte) (output [16]byte, err error) {
