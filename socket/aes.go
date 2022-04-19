@@ -67,7 +67,7 @@ func NewAES(key []byte) (*AES, error) {
 	return a, nil
 }
 
-func (aes *AES) BlockEncypt(input [16]byte) (output [16]byte, err error) {
+func (aes *AES) BlockEncrypt(input [16]byte) (output [16]byte) {
 	for i := 0; i < 16; i++ {
 		aes.state[i%4][i/4] = input[i]
 	}
@@ -92,7 +92,7 @@ func (aes *AES) BlockEncypt(input [16]byte) (output [16]byte, err error) {
 	return
 }
 
-func (aes *AES) BlockDecrypt(input [16]byte) (output [16]byte, err error) {
+func (aes *AES) BlockDecrypt(input [16]byte) (output [16]byte) {
 	for i := 0; i < 16; i++ {
 		aes.state[i%4][i/4] = input[i]
 	}
@@ -113,6 +113,64 @@ func (aes *AES) BlockDecrypt(input [16]byte) (output [16]byte, err error) {
 	}
 
 	return
+}
+
+// Verifies that a slice is 16 bytes long then encrypts it
+func (aes *AES) Encrypt(dst, src []byte) error {
+	if len(dst) != 16 || len(src) != 16 {
+		return errors.New("dst and src must be 16 bytes")
+	}
+
+	for i := 0; i < 16; i++ {
+		aes.state[i%4][i/4] = src[i]
+	}
+
+	for i := 0; i < 9; i++ {
+		aes.addRoundKey(i)
+		aes.subBytes()
+		aes.shiftRows()
+		aes.mixColumns()
+	}
+
+	// last round is special
+	aes.addRoundKey(9)
+	aes.subBytes()
+	aes.shiftRows()
+	aes.addRoundKey(10)
+
+	for i := 0; i < 16; i++ {
+		dst[i] = aes.state[i%4][i/4]
+	}
+
+	return nil
+}
+
+// Verifies that a slice is 16 bytes long then decrypts it
+func (aes *AES) Decrypt(dst, src []byte) error {
+	if len(dst) != 16 || len(src) != 16 {
+		return errors.New("dst and src must be 16 bytes")
+	}
+
+	for i := 0; i < 16; i++ {
+		aes.state[i%4][i/4] = src[i]
+	}
+
+	aes.addRoundKey(10)
+	for i := 0; i < 9; i++ {
+		aes.invShiftRows()
+		aes.invSubBytes()
+		aes.addRoundKey(9 - i)
+		aes.invMixColumns()
+	}
+	aes.invShiftRows()
+	aes.invSubBytes()
+	aes.addRoundKey(0)
+
+	for i := 0; i < 16; i++ {
+		dst[i] = aes.state[i%4][i/4]
+	}
+
+	return nil
 }
 
 // subBytes substitutes each byte in the state with the corresponding byte in the S-box

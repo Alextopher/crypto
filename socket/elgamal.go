@@ -22,9 +22,6 @@ type ElGamalPublicKey struct {
 	g *big.Int
 	// The public key, h = g^a mod p
 	h *big.Int
-
-	// The number of bytes encoded in each ciphertext
-	bs int
 }
 
 // Geneates a new ElGamal key pair.
@@ -35,9 +32,6 @@ func Keygen(keysize int) (*ElGamalPrivateKey, *ElGamalPublicKey) {
 	if err != nil {
 		panic("could not generate random prime")
 	}
-
-	// choose the block size
-	bs := (p.BitLen() / 8) - 1
 
 	// generate a random generator
 	g, err := rand.Int(rand.Reader, p)
@@ -55,7 +49,7 @@ func Keygen(keysize int) (*ElGamalPrivateKey, *ElGamalPublicKey) {
 	h := new(big.Int).Exp(g, a, p)
 
 	// create the private key
-	private := &ElGamalPrivateKey{a, &ElGamalPublicKey{p, g, h, bs}}
+	private := &ElGamalPrivateKey{a, &ElGamalPublicKey{p, g, h}}
 
 	return private, private.public
 }
@@ -100,14 +94,17 @@ func (pk *ElGamalPublicKey) _encrypt(m *big.Int) (ElGamalCipherText, error) {
 
 // Encrypts a full message using ElGamal. Depending on the size of the message multiple messages will be returned.
 func (pk *ElGamalPublicKey) Encrypt(message []byte) ([]*ElGamalCipherText, error) {
+	// calculate the block size
+	bs := (pk.p.BitLen() / 8) - 1
+
 	// check if the message is not divisible by the block size
-	lastBlockSize := len(message) % pk.bs
+	lastBlockSize := len(message) % bs
 
 	// handle everything except the last block
 	ciphers := make([]*ElGamalCipherText, 0)
-	for i := 0; i < len(message)-lastBlockSize; i += pk.bs {
+	for i := 0; i < len(message)-lastBlockSize; i += bs {
 		// create a new big int from the message
-		m := new(big.Int).SetBytes(message[i : i+pk.bs])
+		m := new(big.Int).SetBytes(message[i : i+bs])
 
 		// encrypt the message
 		c, err := pk._encrypt(m)
@@ -115,7 +112,7 @@ func (pk *ElGamalPublicKey) Encrypt(message []byte) ([]*ElGamalCipherText, error
 			return nil, err
 		}
 
-		c.size = pk.bs
+		c.size = bs
 		ciphers = append(ciphers, &c)
 	}
 

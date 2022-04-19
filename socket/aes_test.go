@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"math/rand"
 	"strconv"
 	"testing"
 )
@@ -416,7 +418,7 @@ func TestFullInverseCipher(t *testing.T) {
 }
 
 // Tests the same thing as TestFullCipher but without looking at intermediate values
-func TestBlockEncypt(t *testing.T) {
+func TestBlockEncrypt(t *testing.T) {
 	key := stringToBytes("000102030405060708090a0b0c0d0e0f")
 
 	aes, err := NewAES(key[:])
@@ -424,13 +426,10 @@ func TestBlockEncypt(t *testing.T) {
 		t.Errorf("NewAES failed: %v", err)
 	}
 
-	out, err := aes.BlockEncypt(stringToBytes("00112233445566778899aabbccddeeff"))
-	if err != nil {
-		t.Errorf("BlockEncypt failed: %v", err)
-	}
+	out := aes.BlockEncrypt(stringToBytes("00112233445566778899aabbccddeeff"))
 
 	if out != stringToBytes("69c4e0d86a7b0430d8cdb78070b4c55a") {
-		t.Errorf("BlockEncypt failed: expected: %v, found: %v", out, stringToBytes("69c4e0d86a7b0430d8cdb78070b4c55a"))
+		t.Errorf("BlockEncrypt failed: expected: %v, found: %v", out, stringToBytes("69c4e0d86a7b0430d8cdb78070b4c55a"))
 	}
 }
 
@@ -442,12 +441,29 @@ func TestBlockDecrypt(t *testing.T) {
 		t.Errorf("NewAES failed: %v", err)
 	}
 
-	out, err := aes.BlockDecrypt(stringToBytes("69c4e0d86a7b0430d8cdb78070b4c55a"))
-	if err != nil {
-		t.Errorf("BlockDecrypt failed: %v", err)
-	}
+	out := aes.BlockDecrypt(stringToBytes("69c4e0d86a7b0430d8cdb78070b4c55a"))
 
 	if out != stringToBytes("00112233445566778899aabbccddeeff") {
 		t.Errorf("BlockDecrypt failed: expected: %v, found: %v", out, stringToBytes("00112233445566778899aabbccddeeff"))
+	}
+}
+
+func TestE2E(t *testing.T) {
+	var msg, key [16]byte
+	for i := 1; i < 1000; i++ {
+		rand.Read(msg[:])
+		rand.Read(key[:])
+
+		aes, err := NewAES(key[:])
+		if err != nil {
+			t.Errorf("NewAES failed: %v", err)
+		}
+
+		cipher := aes.BlockEncrypt(msg)
+		decipher := aes.BlockDecrypt(cipher)
+
+		if !bytes.Equal(msg[:], decipher[:]) {
+			t.Errorf("E2E failed: expected: %v, found: %v", msg, decipher)
+		}
 	}
 }
