@@ -20,7 +20,7 @@ func main() {
 	if *server {
 		fmt.Println("Running as a server!")
 
-		listener, err := net.Listen("tcp", flag.Args()[1])
+		listener, err := net.Listen("tcp", flag.Arg(0))
 
 		if err != nil {
 			fmt.Println("Error listening:", err.Error())
@@ -39,7 +39,7 @@ func main() {
 	} else {
 		fmt.Println("Running as a client!")
 
-		conn, err = net.Dial("tcp", flag.Args()[1])
+		conn, err = net.Dial("tcp", flag.Arg(0))
 		if err != nil {
 			fmt.Println("Error dialing:", err.Error())
 			os.Exit(1)
@@ -56,7 +56,7 @@ func main() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			// add name: to the start of the message
-			s.send <- []byte(fmt.Sprintf("%s: %s", flag.Args()[0], scanner.Text()))
+			s.send <- []byte(fmt.Sprintf("%s: %s", flag.Arg(0), scanner.Text()))
 		}
 	}()
 
