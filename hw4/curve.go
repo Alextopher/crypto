@@ -62,6 +62,9 @@ func (ec *EllipicCurve) IsOnCurve(p *Point) bool {
 	rhs = new(big.Int).Add(rhs, ec.b)
 	rhs = new(big.Int).Mod(rhs, ec.p)
 
+	fmt.Println(lhs)
+	fmt.Println(rhs)
+
 	return lhs.Cmp(rhs) == 0
 }
 
@@ -139,6 +142,7 @@ func (ec *EllipicCurve) Double(p *Point) *Point {
 // x3 = m^2 - x2 - x1
 // y3 = m(x1 - x3) - y1
 func (ec *EllipicCurve) Add(p1, p2 *Point) *Point {
+	p1, p2 = p2, p1
 	Debug("Add(%s, %s)\n", p1, p2)
 
 	// p1 + p1 = 2p1

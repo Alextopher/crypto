@@ -2,9 +2,24 @@ package myrsa
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 	"testing"
 )
+
+func TestSophiasSanity(t *testing.T) {
+	// keygen
+	private := Keygen(16)
+	private.precompute()
+
+	fmt.Println("n:", private.Public.n)
+	fmt.Println("p:", private.p)
+	fmt.Println("q:", private.q)
+	fmt.Println("d:", private.d)
+	fmt.Println("e:", private.Public.e)
+	fmt.Println("alpha_p", private.ap)
+	fmt.Println("alpha_q", private.aq)
+}
 
 // Test saving and reading a public key
 func TestSavePublicKey(t *testing.T) {
