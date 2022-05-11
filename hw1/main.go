@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// This is the smallest known 64-bit LSFR which visits every state exactly once
 const taps uint64 = 0x800000000000000D
 
 func printUsage() {
@@ -15,8 +16,6 @@ func printUsage() {
 }
 
 func main() {
-	// ./lsfr keygen <keyfile>
-	// ./lsfr mix <keyfile> <infile> <outfile>
 	if len(os.Args) < 2 {
 		printUsage()
 	}
@@ -24,8 +23,7 @@ func main() {
 	switch os.Args[1] {
 	case "keygen":
 		if len(os.Args) != 3 {
-			fmt.Println("Usage: ./lsfr keygen <keyfile>")
-			os.Exit(1)
+			printUsage()
 		}
 
 		// Open key file
@@ -74,11 +72,14 @@ func main() {
 		}
 		defer w.Close()
 
-		// Create the LFSR
-		lsfr := NewLFSR(key, taps)
+		// Create the LSFR
+		lsfr := NewLSFR(key, taps)
 
 		// Mix the files
-		lsfr.Mix(r, w)
+		if lsfr.Mix(r, w) != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	default:
 		printUsage()
 	}

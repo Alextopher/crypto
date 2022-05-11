@@ -23,13 +23,21 @@ NTUXTOPXIOXPQTPOZONBZAEWBPXNON
 TSQKPBPQKXKKQTNFONBQKGUODWBPOF
 QGGSOACCODZUXZW
 
-## Decrpytion
-I decrpyted this message mostly by hand partnered with [sophiacarlone](https://github.com/sophiacarlone)
+## Part 1 (decrpytion)
+I decrpyted this message mostly by hand partnered with [sophiacarlone](https://github.com/sophiacarlone). We used some ngram frequencies to help with our analysis.
 
 > YOU ARE READING THE PLAIN TEXT MESSAGE OF OUR FIRST ASSIGNMENT IN CRYPTOGRAPHY FOR THE FIRST PART OF THIS ASSIGNMENT EMAIL THIS PLAIN TEXT FILE AND DESCRIBE THE SUBSTITUTION CIPHER USED FOR ENCRYPTION FOR THE SECOND PART IMPLEMENT A DIFFERENT SECRET KEY ENCRYPTION AND DECRYPTION SCHEME FOR TEXT FILES AND SUBMIT YOU SOURCE ALONG WITH DOCUMENTATION AND TESTING FOR YOUR IMPLEMENTATION USING A PROGRAMMING LANGUAGE OF YOUR CHOICE FOR THE THIRD PART DETERMINE THE STATISTICAL PROFILES OF ENGLISH AND ANOTHER LANGUAGE BY WRITING A PROGRAM TO COMPUTE THEIR ENTROPIES OVER A LARGE TEXT CORPUS DOES THE SECOND LANGUAGE HAVE A HIGHER ENTROPY THAN ENGLISH THIS ASSIGNMENT IS DUE BY THE MIDDLE OF FEBRUARY
 
-## Instructions
+Key:
+```
+A B C D E F G H I K M N O P Q R S T U W X Y Z
+O T F B P M D X V S C N E H I W L G U Y A K R
+```
+
+## Part 2 (different secret key encryption)
+
+I used a linear shift feedback register as a psuedo random number generator to create a stream cipher. https://en.wikipedia.org/wiki/Linear-feedback_shift_register
 
 If you don't have the go compiler you can find download instructions at https://go.dev/doc/install. 
 
-Running `make` is the easiest way to compile and test the program. It will encrypt and decrypt the file and run diff.
+Running `make` is the easiest way to compile and test the program. It will create a new random key (a uint64), encrypt `message.txt` into `cipher.txt` and decrypt `cipher.txt` into `plaintext.txt`. Afterwards it runs `diff` to check if the decrypted message is the same as the original message.
