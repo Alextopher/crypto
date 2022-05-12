@@ -10,6 +10,7 @@ import (
 func (private *PrivateKey) precompute() {
 	// c = m1 * p + m2 * q
 	_, m1, m2 := pulverizer(private.p, private.q)
+	m1 = m1.Mod(m1, private.p)
 	m2 = m2.Mod(m2, private.p)
 
 	private.ap = m1.Mul(m1, private.p)

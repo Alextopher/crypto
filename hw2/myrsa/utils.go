@@ -1,6 +1,7 @@
 package myrsa
 
 import (
+	"fmt"
 	"math/big"
 )
 
@@ -11,7 +12,7 @@ func pulverizer(a, b *big.Int) (d, x, y *big.Int) {
 	x1, y1, x2, y2 := big.NewInt(1), big.NewInt(0), big.NewInt(0), big.NewInt(1)
 	for b.Cmp(big.NewInt(0)) != 0 {
 		q, r := new(big.Int).DivMod(a, b, new(big.Int))
-		// fmt.Println("a:", a, "b:", b, "q:", q, "r:", r, "x1:", x1, "y1:", y1, "x2:", x2, "y2:", y2)
+		fmt.Println("a:", a, "b:", b, "q:", q, "r:", r, "x1:", x1, "y1:", y1, "x2:", x2, "y2:", y2)
 		a, b = b, r
 		x1, x2 = x2, new(big.Int).Sub(x1, new(big.Int).Mul(q, x2))
 		y1, y2 = y2, new(big.Int).Sub(y1, new(big.Int).Mul(q, y2))
