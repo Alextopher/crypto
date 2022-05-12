@@ -2,7 +2,7 @@
 
 This is my implementation of the RSA cryptosystem for my cryptography class, written in go.
 
-**Assignment**:
+# Assignment
 
 > You are reading the plaintext of our second assignment in cryptography.
 For this assignment, implement your own RSA cryptosystem for text files.
