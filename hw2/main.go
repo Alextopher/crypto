@@ -92,7 +92,7 @@ func main() {
 		public := rsa.ReadPublicKey(publicFile)
 
 		// Encrypt the plaintext
-		public.Encrypt(plaintextFile, ciphertextFile)
+		public.EncryptByByte(plaintextFile, ciphertextFile)
 	} else if os.Args[1] == "decrypt" {
 		if len(os.Args) != 5 {
 			panic("Usage: ./rsa decrypt <private_key> <ciphertext> <plaintext>")

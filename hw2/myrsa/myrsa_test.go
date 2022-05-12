@@ -7,27 +7,6 @@ import (
 	"testing"
 )
 
-func TestSophia(t *testing.T) {
-	p, q := big.NewInt(52313), big.NewInt(20161)
-	n := new(big.Int).Mul(p, q)
-
-	e := big.NewInt(65537)
-	pm1 := new(big.Int).Sub(p, big.NewInt(1))
-	qm1 := new(big.Int).Sub(q, big.NewInt(1))
-	phi := new(big.Int).Mul(pm1, qm1)
-
-	d := new(big.Int).ModInverse(e, phi)
-
-	fmt.Println("p:", p)
-	fmt.Println("q:", q)
-	fmt.Println("n:", n)
-	fmt.Println("phi", phi)
-	fmt.Println("e:", e)
-	fmt.Println("d:", d)
-
-	fmt.Println(pulverizer(phi, e))
-}
-
 // Test saving and reading a public key
 func TestSavePublicKey(t *testing.T) {
 	// Keygen
