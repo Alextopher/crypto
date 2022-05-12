@@ -1,3 +1,3 @@
-module github.com/Alextopher/crypto/hw4
+module github.com/Alextopher/crypto/h4
 
-go 1.17
+go 1.18
